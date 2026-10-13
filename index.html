@@ -1013,7 +1013,7 @@ document.addEventListener("click",function(e){
     return;}
   if(t.hasAttribute("data-pick")){closeDD();
     var i2=byId(t.getAttribute("data-pick")),id=i2.id;
-    if(i2.slot==="base"){var prev=state.picks;state.picks={base:i2.id};cleanRest(Object.assign({},prev,{base:i2.id}));save();state.tab=firstTab();state.pi=0;state.photo=!!photosFor();render2();$("#list").scrollTop=0;return;}
+    if(i2.slot==="base"){/* nouvelle réplique : on repart de zéro, les accessoires de la précédente sont retirés */var prev=state.picks;state.picks={base:i2.id};if(prev.base===i2.id)cleanRest(Object.assign({},prev,{base:i2.id}));else{state.cols={};state.rail=.45;state.fg=.5;state.bp=.8;state.lt=.85;state.lp="t";state.bname=null;}save();state.tab=firstTab();state.pi=0;state.photo=!!photosFor();render2();$("#list").scrollTop=0;return;}
     state.picks[i2.slot]=i2.id;save();render2();
     var el=document.querySelector('[data-pick="'+id+'"]');if(el)el.focus({preventScroll:true});return;}
   if(t.hasAttribute("data-clear")){closeDD();var sl=t.getAttribute("data-clear");delete state.picks[sl];save();render2();
