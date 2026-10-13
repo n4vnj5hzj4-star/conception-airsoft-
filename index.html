@@ -465,7 +465,7 @@ function okItem(i){
 function avail(slot){return ITEMS.filter(function(i){return i.slot===slot&&okItem(i);});}
 function link(i){if(i.url)return i.url;var q=i.brand+" "+i.ref+(colOf(i)&&colsOf(i).length>1?" "+colName(i):"")+" airsoft"+(state.shop?" site:"+state.shop:"");return "https://www.google.com/search?q="+encodeURIComponent(q);}
 function imgLink(i){return "https://www.google.com/search?tbm=isch&q="+encodeURIComponent(i.brand+" "+i.ref+" airsoft");}
-function save(){try{localStorage.setItem(KEY,JSON.stringify({platform:state.platform,picks:state.picks,shop:state.shop,finish:state.finish,rail:state.rail,fg:state.fg,cols:state.cols}));}catch(e){}}
+function save(){try{sessionStorage.setItem(KEY,JSON.stringify({platform:state.platform,picks:state.picks,shop:state.shop,finish:state.finish,rail:state.rail,fg:state.fg,cols:state.cols}));}catch(e){}}
 function clean(){
   var out={},b=state.picks.base?byId(state.picks.base):null;
   if(b&&b.slot==="base"&&b.p.indexOf(state.platform)>-1)out.base=b.id;
@@ -480,7 +480,9 @@ function cleanRest(saved){
   });
 }
 function load(){
-  var s=null;try{s=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){}
+  /* la sélection ne vit que le temps de la visite : elle repart à zéro quand on ferme le site */
+  try{localStorage.removeItem(KEY);}catch(e){}
+  var s=null;try{s=JSON.parse(sessionStorage.getItem(KEY)||"null");}catch(e){}
   if(!s)return false;
   if(s.platform==="a"||s.platform==="g"||s.platform==="h")state.platform=s.platform;
   if(typeof s.shop==="string")state.shop=s.shop;
