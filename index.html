@@ -553,7 +553,7 @@ function tintSvg(uri,key){var id=uri.length+":"+uri.slice(-24)+key;if(tintCache[
 function artSrcKey(k,i){var a=ART[k],c=colOf(i);return a&&a.v&&c&&a.v[c]?"a_"+k+"_"+c:"a_"+k;}
 /* Place de la réplique dans la photo d’atelier : le bas du chargeur (px,py) se pose sur la caisse à munitions (bx,by), en pixels d’une photo de 2000 px de large */
 var SCENES={};var SCENE={0:{k:1.36,px:507,py:311,bx:1200,by:900,flip:1},1:{k:1.52,px:498,py:325,bx:800,by:900,flip:0}};
-var ANCH0={0:{scope:{ra:560,rb:260,cy:10,w:250},sup:{cx:69,cy:92,w:214,rot:0,flip:0},stock:{img:'stockA',cx:771,cy:148,w:365},mask:[]},1:{scope:{ra:440,rb:740,cy:58,w:230},sup:{cx:897,cy:125,w:190,rot:0,flip:1},stock:{img:'stockB',cx:286,cy:158,w:300},mask:[]}};
+var ANCH0={0:{scope:{ra:560,rb:260,cy:10,w:250,flip:1},sup:{cx:69,cy:92,w:214,rot:0,flip:0},stock:{img:'stockA',cx:765,cy:133,w:365},mask:[]},1:{scope:{ra:440,rb:740,cy:58,w:230},sup:{cx:897,cy:125,w:190,rot:0,flip:1},stock:{img:'stockB',cx:280,cy:161,w:298},mask:[]}};
 SCENES["HK416 A5 GBBR Gen3"]=SCENE;
 SCENES["DA-A07-EGL"]={0:{k:1.07,px:479,py:424,bx:1200,by:900,flip:1},1:{k:1.07,px:615,py:424,bx:800,by:900,flip:0}};
 SCENES["KTGBB-VSMGF-2T02"]={0:{k:.85,px:408,py:571,bx:1200,by:900,flip:1},1:{k:.85,px:641,py:563,bx:800,by:900,flip:0}};
@@ -564,7 +564,7 @@ function SC_(){var b=curBase();return b&&SCENES[b.ref]||{};}
    dir = -1 bouche à gauche, 1 bouche à droite ; rail : dessus du rail (y), bout avant (f) et bout arrière (r) utilisables ;
    muz : point où se visse un silencieux ; under : dessous du garde-main (y) et son bout avant (f) ;
    stock (plateforme AR) : arrière de la carcasse, au centre du tube de crosse. Fournir aussi les photos n (sans crosse ni poignée) et ns (sans crosse). */
-var GEO={"DA-A07-EGL":{0:{s:1.268,dir:-1,rail:{y:97,f:140,r:615},muz:{x:82,y:134},under:{y:170,f:101},stock:{x:741,y:136}},1:{s:1.262,dir:1,rail:{y:97,f:954,r:479},muz:{x:1012,y:134},under:{y:170,f:993},stock:{x:353,y:137}}},"KTGBB-VSMGF-2T02":{0:{s:1.45,dir:-1,rail:{y:100,f:140,r:510},muz:{x:60,y:182},under:{y:228,f:92}},1:{s:1.43,dir:1,rail:{y:97,f:900,r:530},muz:{x:980,y:182},under:{y:226,f:948}}}};
+var GEO={"DA-A07-EGL":{0:{s:1.268,dir:-1,rail:{y:97,f:140,r:615},muz:{x:82,y:138},under:{y:170,f:101},stock:{x:741,y:136}},1:{s:1.262,dir:1,rail:{y:97,f:954,r:479},muz:{x:1012,y:140},under:{y:170,f:993},stock:{x:353,y:137}}},"KTGBB-VSMGF-2T02":{0:{s:1.45,dir:-1,rail:{y:100,f:140,r:510},muz:{x:60,y:188},under:{y:228,f:92}},1:{s:1.43,dir:1,rail:{y:97,f:900,r:530},muz:{x:980,y:180},under:{y:226,f:948}}}};
 /* repère du HK416 vue 0, d'où sont tirées les positions des accessoires */
 var GREF={rail:{y:53,f:196,r:592},muz:{x:176,y:92},under:{y:116,f:196},stock:{x:693,y:94}};
 function geoOf(view){var b=curBase();return b&&GEO[b.ref]&&GEO[b.ref][view]||null;}
@@ -576,9 +576,9 @@ function topLight(){var a=artOn(picked("light"));return a&&ART[a].y+ART[a].h<=75
 function geoAnch(ref){var o={},tl=topLight();
   for(var v in GEO[ref]){var g=GEO[ref][v],L=Math.abs(g.rail.r-g.rail.f)/g.s,fl=g.dir>0?1:0,fu=125+tl,ru=Math.max(fu,L-32);
     var a=geoPt(g,"rail",GREF.rail.f+ru,10),b=geoPt(g,"rail",GREF.rail.f+fu,10),m=geoPt(g,"muz",69,92);
-    o[v]={scope:{ra:a.x,rb:b.x,cy:a.y,w:250*g.s,flip:fl},sup:{cx:m.x,cy:m.y,w:214*g.s,rot:0,flip:fl},mask:[]};
-    /* crosse Lancer : photo côté gauche (A) ou côté droit (B), calée sur l'arrière de la carcasse */
-    if(g.stock)o[v].stock=g.dir<0?{img:"stockA",cx:g.stock.x+78*g.s,cy:g.stock.y+54*g.s,w:365*g.s}:{img:"stockB",cx:g.stock.x-54.9*g.s,cy:g.stock.y+34.4*g.s,w:337*g.s};}
+    o[v]={scope:{ra:a.x,rb:b.x,cy:a.y,w:250*g.s,flip:1-fl},sup:{cx:m.x,cy:m.y,w:214*g.s,rot:0,flip:fl},mask:[]};
+    /* crosse Lancer : photo côté gauche (A) ou côté droit (B) ; le nez de la crosse est centré sur l'axe du tube et chevauche la carcasse de 45 px */
+    if(g.stock){var fa=365*g.s/700,fb=337*g.s/700;o[v].stock=g.dir<0?{img:"stockA",cx:g.stock.x-45*g.s+225*fa,cy:g.stock.y+74*fa,w:365*g.s}:{img:"stockB",cx:g.stock.x+45*g.s-220*fb,cy:g.stock.y+81.5*fb,w:337*g.s};}}
   return o;}
 var ANCH={};function AN_(){var b=curBase();if(!b)return{};if(b.ref==="HK416 A5 GBBR Gen3")return ANCH0;return GEO[b.ref]?geoAnch(b.ref):{};}
 state.photo=false;state.big=false;state.pi=0;state.rail=0.45;var picSc=1;
