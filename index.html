@@ -32,7 +32,8 @@ body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--body);-webkit-fo
 button,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:1px solid var(--brass-hi);outline-offset:3px}
-.app{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+.app{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr)}
+.app>*,.mid>*{min-width:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* Haut */
@@ -258,6 +259,9 @@ td a{color:var(--brass)}
   .listarea{overflow:visible;height:auto;min-height:0}
   .list{overflow:visible;flex:none}
   .tabs{position:sticky;bottom:0;z-index:12}
+  .list{grid-template-columns:minmax(0,1fr)}
+  .card:not(.remove) .row{flex-wrap:wrap;row-gap:6px}
+  .stats{max-width:100%;flex-wrap:wrap;justify-content:space-between;gap:6px 14px;border-radius:18px}
 }
 @media (max-height:560px) and (min-width:821px){.tab svg{display:none}.tab{min-width:0;padding:8px 12px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -614,7 +618,9 @@ function layoutPic(){
   var sc=Math.min(aw/(x1-x0),ah/(y1-y0));if(!(sc>0))return;
   var SC=SC_()[state.pi],scn=document.getElementById("scene"),pa=document.getElementById("photos"),pl=null;
   if(scn&&pa){var W=pa.clientWidth,H=pa.clientHeight,BW=2000,BH=1334,br=big.getBoundingClientRect(),pr=pa.getBoundingClientRect(),bl=br.left-pr.left+parseFloat(cs.paddingLeft),bt=br.top-pr.top+parseFloat(cs.paddingTop);
-    if(SC){var k=SC.k,cov=Math.max(W/BW,H/BH),bs=Math.max(cov,Math.min(sc/k,cov*1.12));sc=bs*k;
+    if(SC){var k=SC.k,cov=Math.max(W/BW,H/BH),fit=sc,bs=Math.max(cov,Math.min(sc/k,cov*1.12));
+      /* la réplique reste toujours entière dans le cadre : jamais plus grande que la place disponible */
+      sc=Math.min(fit,bs*k);
       pl=[bl+(aw-(x1-x0)*sc)/2,bt+(ah-(y1-y0)*sc)/2];
       /* réplique centrée ; le décor s'ajuste (et grossit un peu si besoin) pour garder la caisse sous le chargeur */
       var mx=pl[0]+(SC.px-x0)*sc,my=pl[1]+(SC.py-y0)*sc,bb=bs,ox,oy;
