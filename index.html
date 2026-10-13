@@ -525,6 +525,7 @@ function artOf(i){return i&&!i.ov&&ARTBY[i.ref]?ARTBY[i.ref]:null;}
 function artOn(i){var a=artOf(i);return a&&ART[a].photo?a:null;}
 /* vue 1 = vue 0 retournée, à 0,89 : x1 = 852 - 0,89 (x0 - 112), y1 = 90 + 0,89 (y0 - 52) */
 function artPlace(k,view,cx){var a=ART[k],c=cx!==undefined?cx:a.x+a.w/2,cy=a.rail?53-a.h/2:a.y+a.h/2;
+  var g=geoOf(view);if(g){var part=a.rail||a.y+a.h<=75?"rail":cy>100&&c<400?"under":c<GREF.rail.f?"muz":"rail",p=geoPt(g,part,c,cy);return{img:"a_"+k,cx:p.x,cy:p.y,w:a.w*g.s,flip:g.dir>0?1:0};}
   if(view===0)return{img:"a_"+k,cx:c,cy:cy,w:a.w,flip:0};return{img:"a_"+k,cx:852-.89*(c-112),cy:90+.89*(cy-52),w:a.w*.89,flip:1};}
 
 /* Couleurs vendues par le fabricant (la première est celle par défaut) */
@@ -550,9 +551,27 @@ var SCENES={};var SCENE={0:{k:1.36,px:507,py:311,bx:1200,by:900,flip:1},1:{k:1.5
 var ANCH0={0:{scope:{ra:560,rb:260,cy:10,w:250},sup:{cx:69,cy:92,w:214,rot:0,flip:0},stock:{img:'stockA',cx:771,cy:148,w:365},mask:[]},1:{scope:{ra:440,rb:740,cy:58,w:230},sup:{cx:897,cy:125,w:190,rot:0,flip:1},stock:{img:'stockB',cx:286,cy:158,w:300},mask:[]}};
 SCENES["HK416 A5 GBBR Gen3"]=SCENE;
 SCENES["KTGBB-VSMGF-2T02"]={0:{k:.85,px:408,py:571,bx:1200,by:900,flip:1},1:{k:.85,px:641,py:563,bx:800,by:900,flip:0}};
-/* décor et accroches des accessoires selon la réplique affichée (les accroches n'existent que pour le HK416 GBBR) */
+/* décor et accroches des accessoires selon la réplique affichée (HK416 GBBR : ANCH0 ; autres bases : calculées depuis GEO) */
 function SC_(){var b=curBase();return b&&SCENES[b.ref]||{};}
-var ANCH={};function AN_(){var b=curBase();return b&&b.ref==="HK416 A5 GBBR Gen3"?ANCH0:{};}
+/* Points de montage de chaque autre base, vue par vue, pour y poser les accessoires en photo.
+   À renseigner pour toute nouvelle base : s = pixels de la photo par pixel du HK416 vue 0, mesuré sur le pas du rail Picatinny (10 mm = 11 px sur le HK416),
+   dir = -1 bouche à gauche, 1 bouche à droite ; rail : dessus du rail (y), bout avant (f) et bout arrière (r) utilisables ;
+   muz : point où se visse un silencieux ; under : dessous du garde-main (y) et son bout avant (f). */
+var GEO={"KTGBB-VSMGF-2T02":{0:{s:1.45,dir:-1,rail:{y:100,f:140,r:510},muz:{x:60,y:182},under:{y:228,f:92}},1:{s:1.43,dir:1,rail:{y:97,f:900,r:530},muz:{x:980,y:182},under:{y:226,f:948}}}};
+/* repère du HK416 vue 0, d'où sont tirées les positions des accessoires */
+var GREF={rail:{y:53,f:196,r:592},muz:{x:176,y:92},under:{y:116,f:196}};
+function geoOf(view){var b=curBase();return b&&GEO[b.ref]&&GEO[b.ref][view]||null;}
+function geoPt(g,part,xh,yh){var R=GREF[part],P=g[part];return{x:P.f!==undefined?P.f-g.dir*(xh-R.f)*g.s:P.x-g.dir*(xh-R.x)*g.s,y:P.y+(yh-R.y)*g.s};}
+/* longueur de rail utilisable, en pixels du HK416 vue 0 */
+function railLen(view){var g=geoOf(view);return g?Math.abs(g.rail.r-g.rail.f)/g.s:GREF.rail.r-GREF.rail.f;}
+/* la lunette glisse sur le rail derrière une pièce posée à l'avant du rail (PEQ) */
+function topLight(){var a=artOn(picked("light"));return a&&ART[a].y+ART[a].h<=75?ART[a].w+4:0;}
+function geoAnch(ref){var o={},tl=topLight();
+  for(var v in GEO[ref]){var g=GEO[ref][v],L=Math.abs(g.rail.r-g.rail.f)/g.s,fl=g.dir>0?1:0,fu=125+tl,ru=Math.max(fu,L-32);
+    var a=geoPt(g,"rail",GREF.rail.f+ru,10),b=geoPt(g,"rail",GREF.rail.f+fu,10),m=geoPt(g,"muz",69,92);
+    o[v]={scope:{ra:a.x,rb:b.x,cy:a.y,w:250*g.s,flip:fl},sup:{cx:m.x,cy:m.y,w:214*g.s,rot:0,flip:fl},mask:[]};}
+  return o;}
+var ANCH={};function AN_(){var b=curBase();if(!b)return{};if(b.ref==="HK416 A5 GBBR Gen3")return ANCH0;return GEO[b.ref]?geoAnch(b.ref):{};}
 state.photo=false;state.big=false;state.pi=0;state.rail=0.45;var picSc=1;
 function photosFor(){var b=picked("base")||(state.previewBase?byId(state.previewBase):null);if(!(b&&PHOTOS[b.ref]))return null;var l=PHOTOS[b.ref],sk=picked("stock");
   if(sk&&sk.ov==="stock"){l=l.concat([{s:STK.x1.s,t:"Crosse choisie, vue 3/4",w:STK.x1.w,h:STK.x1.h},{s:STK.x2.s,t:"Crosse choisie, arrière",w:STK.x2.w,h:STK.x2.h},{s:STK.x3.s,t:"Crosse choisie, avant",w:STK.x3.w,h:STK.x3.h}]);}
@@ -572,10 +591,10 @@ function overlaysFor(i){
   /* optiques sur le rail : arrière (rail = 0) jusqu'au devant du garde-main, la loupe se place derrière */
   var oa=artOn(o),mg=artOn(picked("magnifier")),mw=mg?ART[mg].w+6:0;
   if(o&&o.ov&&an[o.ov]){var q=Object.assign({k:o.ov},an[o.ov]);if(q.ra!==undefined)q.cx=q.ra+(q.rb-q.ra)*state.rail;out.push(q);}
-  else if(oa){var w=ART[oa].w,ra=592-mw-w/2,rb=196+w/2,c=ra+(rb-ra)*state.rail;
+  else if(oa){var w=ART[oa].w,rr=GREF.rail.f+railLen(i),rb=196+w/2+(geoOf(i)?topLight():0),ra=Math.max(rb,rr-mw-w/2),c=ra+(rb-ra)*state.rail;
     out.push(Object.assign({k:"scope",slot:"optic",label:o.brand+" "+o.name},artPlace(oa,i,c)));
     if(mg)out.push(Object.assign({k:"mag3",slot:"magnifier",label:"Loupe"},artPlace(mg,i,c+w/2+6+ART[mg].w/2)));}
-  else if(mg)out.push(Object.assign({k:"mag3",slot:"magnifier",label:"Loupe"},artPlace(mg,i,592-ART[mg].w/2)));
+  else if(mg)out.push(Object.assign({k:"mag3",slot:"magnifier",label:"Loupe"},artPlace(mg,i,GREF.rail.f+railLen(i)-ART[mg].w/2)));
   return out;
 }
 function baseSrc(P,ovs){var has=function(k){return ovs.some(function(v){return v.k===k;});};
