@@ -83,6 +83,7 @@ button{cursor:pointer}
 .menub:hover{background:var(--card-hi)}
 .zoomb{position:absolute;left:18px;top:18px;z-index:7}
 .rotb{position:absolute;left:18px;top:70px;z-index:7}
+.fine .vis{margin-top:10px;color:var(--brass);font-weight:600;letter-spacing:.04em}.fine .vis:empty{display:none}
 .saveb{position:absolute;left:18px;top:122px;z-index:7;display:flex;align-items:center;gap:7px;height:40px;padding:0 15px 0 12px;border-radius:20px;background:var(--bg);border:1px solid var(--bg);color:var(--ink);font:600 12.5px var(--body);cursor:pointer;transition:color .2s,border-color .2s,background .2s}.saveb svg{width:18px;height:18px}.saveb:hover,.saveb:focus-visible{border-color:var(--brass);color:var(--brass)}.saveb.ok{background:var(--brass);border-color:var(--brass);color:var(--bg)}
 .photos .pic.spin{transition:transform .34s cubic-bezier(.5,0,.75,0)}
 .photos .pic.spin2{transition:transform .38s cubic-bezier(.2,.7,.25,1)}
@@ -938,8 +939,15 @@ function acctHtml(){var u=curUser(),a=accts(),h='<div class="mhead"><div><h3 id=
     h+='<div class="acf"><label>Nom de la composition<span class="row2"><input id="acN" maxlength="40" placeholder="Ma '+esc(model())+'"><button class="btn primary" type="button" data-acct="save">Enregistrer</button></span></label>'+(acMsg?'<p class="acmsg'+(acBad?' bad':'')+'">'+esc(acMsg)+'</p>':'')+'</div>';
     h+=bs.length?'<ul class="blist">'+bs.map(function(x,k){return '<li><b>'+esc(x.name)+'</b><small>'+esc(snapInfo(x.data))+' · '+esc(new Date(x.t).toLocaleDateString("fr-FR"))+'</small><div class="btns"><button class="btn primary" type="button" data-acct="open:'+k+'">Ouvrir</button><button class="btn" type="button" data-acct="link:'+k+'">Copier le lien</button><button class="btn" type="button" data-acct="del:'+k+'">Supprimer</button></div></li>';}).join("")+'</ul>':'<p class="empty">Aucune composition enregistrée pour le moment.</p>';}
   h+='<div class="btns" style="margin-top:16px"><button class="btn" type="button" data-acct="link">Copier le lien de la composition actuelle</button>'+(u?'<button class="btn" type="button" data-acct="logout">Se déconnecter</button>':'')+'</div>';
-  h+='<div class="fine"><p>Le compte est gardé dans ce navigateur. Pour ouvrir une composition sur un autre appareil, envoyez-vous son lien.</p>'+(u?'<p>À la déconnexion, la composition en cours est enregistrée sous « Dernière session », puis tout repart à zéro.</p>':'')+'</div>';
+  h+='<div class="fine"><p>Le compte est gardé dans ce navigateur. Pour ouvrir une composition sur un autre appareil, envoyez-vous son lien.</p>'+(u?'<p>À la déconnexion, la composition en cours est enregistrée sous « Dernière session », puis tout repart à zéro.</p>':'')+'<p class="vis" id="visN">'+visTxt()+'</p></div>';
   return h;}
+/* compteur de visites (Abacus, gratuit, sans compte) : +1 par session de navigation sur le site public, simple lecture ailleurs */
+var VIS=null;
+function visTxt(){return VIS===null?"":"Visites du site : "+VIS.toLocaleString("fr-FR");}
+function loadVisits(){var pub=/github\.io$/.test(location.hostname),seen=false;try{seen=sessionStorage.getItem("atelier-vis")==="1";}catch(e){}
+  if(!window.fetch)return;fetch("https://abacus.jasoncameron.dev/"+(pub&&!seen?"hit":"get")+"/atelier-replique-sr/visites").then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(!j||typeof j.value!=="number")return;VIS=j.value;if(pub)try{sessionStorage.setItem("atelier-vis","1");}catch(e){}var el=document.getElementById("visN");if(el)el.textContent=visTxt();}).catch(function(){});}
+loadVisits();
 function openAcct(){lastFocus=document.activeElement;state.modal="acct";acMsg="";$("#mpanel").innerHTML=acctHtml();$("#modal").hidden=false;var f=$("#acU")||$("#acN")||$("#mclose");if(f)f.focus();}
 function reAcct(focus){var ku=$("#acU"),kv=ku&&!curUser()?ku.value:"";$("#mpanel").innerHTML=acctHtml();if(kv&&$("#acU"))$("#acU").value=kv;acctBtnLabel();var f=focus&&$(focus);if(f)f.focus();}
 function copyText(txt,done){var ok=function(){done(true);},ko=function(){window.prompt("Copiez ce lien :",txt);done(false);};try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(ok,ko);else ko();}catch(e){ko();}}
