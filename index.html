@@ -90,6 +90,7 @@ button{cursor:pointer}
 .langm button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:5px;padding:8px 10px;color:var(--ink);font:500 13px var(--body);cursor:pointer}.langm button:hover,.langm button:focus-visible{border-color:var(--line-hi);background:rgba(255,255,255,.04)}.langm button[aria-selected="true"]{color:var(--brass-hi);border-color:var(--brass)}
 @media (max-width:820px){.langm{right:auto;left:0}}
 .goog-te-banner-frame,iframe.skiptranslate,.goog-te-balloon-frame,#goog-gt-tt,.goog-te-spinner-pos{display:none!important}body{top:0!important}.goog-text-highlight{background:none!important;box-shadow:none!important}
+.langnote{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;max-width:min(92vw,520px);background:var(--bg2);border:1px solid var(--brass);color:var(--ink);border-radius:10px;padding:12px 16px;font:500 13px/1.4 var(--body);box-shadow:0 18px 50px rgba(0,0,0,.55)}.langnote[hidden]{display:none}
 .saveb{position:absolute;left:18px;top:122px;z-index:7;display:flex;align-items:center;gap:7px;height:40px;padding:0 15px 0 12px;border-radius:20px;background:var(--bg);border:1px solid var(--bg);color:var(--ink);font:600 12.5px var(--body);cursor:pointer;transition:color .2s,border-color .2s,background .2s}.saveb svg{width:18px;height:18px}.saveb:hover,.saveb:focus-visible{border-color:var(--brass);color:var(--brass)}.saveb.ok{background:var(--brass);border-color:var(--brass);color:var(--bg)}
 .photos .pic.spin{transition:transform .34s cubic-bezier(.5,0,.75,0)}
 .photos .pic.spin2{transition:transform .38s cubic-bezier(.2,.7,.25,1)}
@@ -959,24 +960,32 @@ loadVisits();
 /* langues : menu avec drapeaux ; le site est écrit en français, les autres langues passent par la traduction automatique de Google */
 var LANGS=[["fr","fr","Français"],["en","gb","English"],["es","es","Español"],["de","de","Deutsch"],["it","it","Italiano"],["pt","pt","Português"],["nl","nl","Nederlands"],["pl","pl","Polski"],["cs","cz","Čeština"],["sv","se","Svenska"],["da","dk","Dansk"],["no","no","Norsk"],["fi","fi","Suomi"],["el","gr","Ελληνικά"],["ro","ro","Română"],["hu","hu","Magyar"],["uk","ua","Українська"],["ru","ru","Русский"],["tr","tr","Türkçe"],["ar","sa","العربية"],["he","il","עברית"],["hi","in","हिन्दी"],["th","th","ไทย"],["vi","vn","Tiếng Việt"],["id","id","Bahasa Indonesia"],["ja","jp","日本語"],["ko","kr","한국어"],["zh-CN","cn","中文 (简体)"],["zh-TW","tw","中文 (繁體)"]];
 var LKEY="atelier-langue";
-function curLang(){var l="fr";try{l=localStorage.getItem(LKEY)||"fr";}catch(e){}return LANGS.some(function(x){return x[0]===l;})?l:"fr";}
+function okLang(l){return LANGS.some(function(x){return x[0]===l;});}
+/* langue en mémoire (le stockage du navigateur peut être bloqué) ; au chargement : stockage, sinon cookie de traduction */
+var LANG=(function(){var l=null;try{l=localStorage.getItem(LKEY);}catch(e){}if(!l){var m=/(?:^|;\s*)googtrans=\/fr\/([^;]+)/.exec(document.cookie);if(m)l=decodeURIComponent(m[1]);}return okLang(l)?l:"fr";})();
+function curLang(){return LANG;}
 function langRow(c){return LANGS.filter(function(x){return x[0]===c;})[0]||LANGS[0];}
 function flagUrl(cc){return "https://flagcdn.com/w40/"+cc+".png";}
 function setGtCookie(v){var d=location.hostname,ex=v?"":";expires=Thu, 01 Jan 1970 00:00:00 GMT";var val=v?"/fr/"+v:"";document.cookie="googtrans="+val+";path=/"+ex;if(d.indexOf(".")>-1){document.cookie="googtrans="+val+";path=/;domain="+d+ex;document.cookie="googtrans="+val+";path=/;domain=."+d+ex;}}
 function loadGT(){if(window.__gtLoading)return;window.__gtLoading=1;window.gtInit=function(){try{new google.translate.TranslateElement({pageLanguage:"fr",autoDisplay:false},"gte");}catch(e){}};var sc=document.createElement("script");sc.src="https://translate.google.com/translate_a/element.js?cb=gtInit";sc.async=true;document.head.appendChild(sc);}
-function applyGT(c,tries){var cb=document.querySelector(".goog-te-combo");if(cb){cb.value=c;cb.dispatchEvent(new Event("change"));return;}if((tries||0)<40)setTimeout(function(){applyGT(c,(tries||0)+1);},250);}
-function langUi(){var c=curLang(),r=langRow(c),f=$("#langFlag"),k=$("#langCode");if(f)f.src=flagUrl(r[1]);if(k)k.textContent=c.slice(0,2).toUpperCase();document.documentElement.lang=c==="fr"?"fr":c;
+function applyGT(c,tries){if(c!==LANG)return;var cb=document.querySelector(".goog-te-combo");if(cb&&cb.options.length>1){cb.value=c;cb.dispatchEvent(new Event("change"));return;}if((tries||0)<60)setTimeout(function(){applyGT(c,(tries||0)+1);},250);}
+function langUi(){var c=curLang(),r=langRow(c),f=$("#langFlag"),k=$("#langCode");if(f)f.src=flagUrl(r[1]);if(k)k.textContent=c.slice(0,2).toUpperCase();
   var m=$("#langMenu");if(m)m.innerHTML=LANGS.map(function(x){return '<button type="button" role="option" data-lang="'+x[0]+'" aria-selected="'+(x[0]===c)+'"><img src="'+flagUrl(x[1])+'" alt="" width="20" height="15" loading="lazy"><span>'+x[2]+'</span></button>';}).join("");}
-function setLang(c){var prev=curLang();try{localStorage.setItem(LKEY,c);}catch(e){}langUi();
-  if(c==="fr"){setGtCookie("");if(prev!=="fr")location.reload();return;}
-  setGtCookie(c);loadGT();applyGT(c);}
+function langNote(t){var n=$("#langNote");if(!n){n=document.createElement("div");n.id="langNote";n.className="langnote notranslate";n.setAttribute("role","status");document.body.appendChild(n);}n.textContent=t;n.hidden=!t;clearTimeout(langNote.t);if(t)langNote.t=setTimeout(function(){n.hidden=true;},6000);}
+function setLang(c){if(!okLang(c))return;var prev=LANG;LANG=c;try{localStorage.setItem(LKEY,c);}catch(e){}langUi();
+  if(c==="fr"){setGtCookie("");if(prev!=="fr"){var cb0=document.querySelector(".goog-te-combo");if(cb0){cb0.value="fr";cb0.dispatchEvent(new Event("change"));}setTimeout(function(){location.reload();},150);}return;}
+  setGtCookie(c);var cb=document.querySelector(".goog-te-combo");if(cb){applyGT(c);return;}
+  /* Google Traduction pas encore chargé : on recharge la page, il traduit alors tout seul grâce au cookie (méthode la plus fiable) */
+  var kept=false;try{kept=localStorage.getItem(LKEY)===c;}catch(e){}if(kept||document.cookie.indexOf("googtrans=/fr/"+c)>-1){location.reload();return;}
+  startGT();}
+function startGT(){loadGT();applyGT(LANG);setTimeout(function(){if(LANG!=="fr"&&!document.querySelector(".goog-te-combo"))langNote("La traduction automatique n'a pas pu se charger ici. Elle fonctionne sur le site public, avec une connexion internet.");},7000);}
 function langOpen(o){var m=$("#langMenu"),b=$("#langBtn");if(!m)return;m.hidden=!o;b.setAttribute("aria-expanded",o?"true":"false");if(o){var s2=m.querySelector('[aria-selected="true"]');if(s2)s2.focus();}}
 document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("#langBtn");if(b){langOpen($("#langMenu").hidden);return;}var l=e.target.closest&&e.target.closest("[data-lang]");if(l){langOpen(false);setLang(l.getAttribute("data-lang"));$("#langBtn").focus();return;}if(!(e.target.closest&&e.target.closest("#langMenu")))langOpen(false);});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("#langMenu").hidden){langOpen(false);$("#langBtn").focus();}});
 /* si les images de drapeaux ne chargent pas, on affiche le drapeau en emoji */
 function emojiFlag(cc){cc=cc.toUpperCase();return String.fromCodePoint(127397+cc.charCodeAt(0),127397+cc.charCodeAt(1));}
 document.addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"&&t.closest&&t.closest(".langw")){var m=/\/w40\/([a-z]{2})\.png/.exec(t.src||"");var sp=document.createElement("span");sp.className="fe";sp.textContent=m?emojiFlag(m[1]):"";t.replaceWith(sp);}},true);
-langUi();if(curLang()!=="fr"){setGtCookie(curLang());loadGT();}
+langUi();if(curLang()!=="fr"){setGtCookie(curLang());startGT();}
 
 function openAcct(){lastFocus=document.activeElement;state.modal="acct";acMsg="";$("#mpanel").innerHTML=acctHtml();$("#modal").hidden=false;var f=$("#acU")||$("#acN")||$("#mclose");if(f)f.focus();}
 function reAcct(focus){var ku=$("#acU"),kv=ku&&!curUser()?ku.value:"";$("#mpanel").innerHTML=acctHtml();if(kv&&$("#acU"))$("#acU").value=kv;acctBtnLabel();var f=focus&&$(focus);if(f)f.focus();}
