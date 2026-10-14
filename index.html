@@ -610,10 +610,12 @@ function SC_(){var b=curBase();return b&&SCENES[b.ref]||{};}
    dir = -1 bouche à gauche, 1 bouche à droite ; rail : dessus du rail (y), bout avant (f) et bout arrière (r) utilisables ;
    muz : point où se visse un silencieux ; under : dessous du garde-main (y), bout avant (f) et bout arrière (r) du rail du dessous ;
    stock (plateforme AR) : arrière de la carcasse, au centre du tube de crosse. Fournir aussi les photos n (sans crosse ni poignée) et ns (sans crosse). */
-var GEO={"MK-15 DMR":{0:{s:1.10,dir:-1,rail:{y:85,f:150,r:705},muz:{x:80,y:126},under:{y:159,f:110,r:540},stock:{x:800,y:124,gx:723,gy:186}},1:{s:1.10,dir:1,rail:{y:83,f:990,r:435},muz:{x:1060,y:126},under:{y:158,f:1030,r:600},stock:{x:340,y:124,gx:417,gy:186}}},"AR0027636":{0:{s:1.259,dir:-1,rail:{y:97,f:210,r:660},muz:{x:136,y:161},under:{y:196,f:208,r:445}},1:{s:1.259,dir:1,rail:{y:99,f:892,r:420},muz:{x:956,y:162},under:{y:198,f:890,r:652}}},"DA-A07-EGL":{0:{s:1.268,dir:-1,rail:{y:97,f:140,r:615},muz:{x:82,y:138},under:{y:170,f:101,r:435},stock:{x:741,y:136,gx:632,gy:228}},1:{s:1.262,dir:1,rail:{y:97,f:954,r:479},muz:{x:1012,y:140},under:{y:170,f:993,r:655},stock:{x:353,y:137,gx:466,gy:228}}},"KTGBB-VSMGF-2T02":{0:{s:1.45,dir:-1,rail:{y:100,f:140,r:510},muz:{x:60,y:188},under:{y:228,f:92,r:238}},1:{s:1.43,dir:1,rail:{y:97,f:900,r:530},muz:{x:980,y:180},under:{y:226,f:948,r:822}}}};
+var GEO={"MK-15 DMR":{0:{s:1.10,dir:-1,rail:{y:85,f:150,r:705},full:{f:97,r:760},muz:{x:80,y:126},under:{y:159,f:110,r:540},stock:{x:800,y:124,gx:723,gy:186}},1:{s:1.10,dir:1,rail:{y:83,f:990,r:435},full:{f:1041,r:381},muz:{x:1060,y:126},under:{y:158,f:1030,r:600},stock:{x:340,y:124,gx:417,gy:186}}},"AR0027636":{0:{s:1.259,dir:-1,rail:{y:97,f:210,r:660},full:{f:209,r:800},muz:{x:136,y:161},under:{y:196,f:208,r:445}},1:{s:1.259,dir:1,rail:{y:99,f:892,r:420},full:{f:893,r:292},muz:{x:956,y:162},under:{y:198,f:890,r:652}}},"DA-A07-EGL":{0:{s:1.268,dir:-1,rail:{y:97,f:140,r:615},full:{f:94,r:705},muz:{x:82,y:138},under:{y:170,f:101,r:435},stock:{x:741,y:136,gx:632,gy:228}},1:{s:1.262,dir:1,rail:{y:97,f:954,r:479},full:{f:999,r:390},muz:{x:1012,y:140},under:{y:170,f:993,r:655},stock:{x:353,y:137,gx:466,gy:228}}},"KTGBB-VSMGF-2T02":{0:{s:1.45,dir:-1,rail:{y:100,f:140,r:510},full:{f:95,r:602},muz:{x:60,y:188},under:{y:228,f:92,r:238}},1:{s:1.43,dir:1,rail:{y:97,f:900,r:530},full:{f:950,r:444},muz:{x:980,y:180},under:{y:226,f:948,r:822}}}};
 /* repère du HK416 vue 0, d'où sont tirées les positions des accessoires */
 var GREF={rail:{y:53,f:196,r:592},muz:{x:176,y:92},under:{y:116,f:196,r:440},stock:{x:693,y:94}};
-function geoOf(view){var b=curBase();return b&&GEO[b.ref]&&GEO[b.ref][view]||null;}
+/* full : rail entier, utilisé dès qu'une optique est choisie (les organes de visée d'origine sont alors effacés de la photo) */
+function geoFull(g){return g&&g.full&&picked("optic")?Object.assign({},g,{rail:Object.assign({},g.rail,g.full)}):g;}
+function geoOf(view){var b=curBase();return geoFull(b&&GEO[b.ref]&&GEO[b.ref][view]||null);}
 function geoPt(g,part,xh,yh){var R=GREF[part],P=g[part];return{x:P.f!==undefined?P.f-g.dir*(xh-R.f)*g.s:P.x-g.dir*(xh-R.x)*g.s,y:P.y+(yh-R.y)*g.s};}
 /* longueur de rail utilisable, en pixels du HK416 vue 0 */
 function railLen(view){var g=geoOf(view);return g?Math.abs(g.rail.r-g.rail.f)/g.s:GREF.rail.r-GREF.rail.f;}
@@ -628,7 +630,7 @@ function fgPlace(view,t,k,pt){pt=pt||"under";var a=ART[k],mw=a.mw||a.w,ax=a.ax==
 function lzPart(a){return state.lp==="u"?[ART[a].slide,"under"]:[a,"rail"];}
 function topLight(){var a=artOn(picked("light"));if(a&&ART[a].slide)return 0;return a&&ART[a].y+ART[a].h<=75?ART[a].w+4:0;}
 function geoAnch(ref){var o={},tl=topLight();
-  for(var v in GEO[ref]){var g=GEO[ref][v],L=Math.abs(g.rail.r-g.rail.f)/g.s,fl=g.dir>0?1:0,fu=125+tl,ru=Math.max(fu,L-32);
+  for(var v in GEO[ref]){var g=geoFull(GEO[ref][v]),L=Math.abs(g.rail.r-g.rail.f)/g.s,fl=g.dir>0?1:0,fu=125+tl,ru=Math.max(fu,L-32);
     var a=geoPt(g,"rail",GREF.rail.f+ru,10),b=geoPt(g,"rail",GREF.rail.f+fu,10),m=geoPt(g,"muz",69,92);
     o[v]={scope:{ra:a.x,rb:b.x,cy:a.y,w:250*g.s,flip:1-fl},sup:{cx:m.x,cy:m.y,w:214*g.s,rot:0,flip:fl},mask:[]};
     /* crosse Lancer : photo côté gauche (A) ou côté droit (B) ; sa poignée intégrée se pose à la place de la poignée d'origine (gx, gy : haut de l'avant de la poignée d'origine) */
