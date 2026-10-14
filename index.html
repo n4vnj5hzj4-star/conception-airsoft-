@@ -193,7 +193,8 @@ button{cursor:pointer}
 .tabs{display:flex;gap:2px;overflow-x:auto;padding:8px 20px calc(8px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line);scrollbar-width:thin;scrollbar-color:var(--line-hi) transparent}
 .tab{flex:0 0 auto;min-width:86px;display:grid;justify-items:center;gap:5px;padding:9px 10px 8px;background:transparent;border:0;border-radius:4px;position:relative;color:var(--faint);transition:color .2s,background .2s}
 .tab::after{content:"";position:absolute;left:22%;right:22%;bottom:0;height:1px;background:var(--brass);transform:scaleX(0);transition:transform .25s var(--ease)}
-.tab svg{width:24px;height:24px;stroke-width:1.3}
+.tab>svg{width:24px;height:24px;stroke-width:1.3}
+.tab .thumb{width:46px;height:26px;border-radius:3px;background:radial-gradient(ellipse at 50% 40%,#2c2a26,#1a1917);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}.tab .thumb img{max-width:94%;max-height:90%;object-fit:contain}.tab .thumb svg{width:90%;height:90%}.tab .thumb svg[style] .d{fill:var(--td)}.tab[aria-selected="true"] .thumb{border-color:var(--brass-lo)}
 .tab span{font:600 10px var(--body);letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
 .tab:hover:not(:disabled){color:var(--ink);background:var(--card)}
 .tab[aria-selected="true"]{color:var(--brass-hi)}
@@ -203,14 +204,16 @@ button{cursor:pointer}
 
 .dd{position:fixed;z-index:15;width:min(400px,calc(100vw - 16px));overflow-y:auto;background:var(--bg2);border:1px solid var(--line-hi);border-radius:6px;padding:6px;display:grid;gap:2px;box-shadow:0 18px 50px rgba(0,0,0,.55)}
 .dd h3{margin:8px 10px 4px;font:600 10.5px var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--brass)}
-.ddi{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 12px;align-items:center;text-align:left;width:100%;background:transparent;border:1px solid transparent;border-radius:4px;padding:9px 10px}
+.ddi{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:0 12px;align-items:center;text-align:left;width:100%;background:transparent;border:1px solid transparent;border-radius:4px;padding:9px 10px}
 .ddi:hover{background:var(--card-hi)}
 .ddi[aria-selected="true"]{background:rgba(201,164,106,.1);border-color:var(--brass-lo)}
 .ddi .n{font:600 17px/1.15 var(--display)}
-.ddi .m{grid-column:1;font:400 11px var(--mono);color:var(--faint)}
+.ddi .thumb{grid-row:1/3;grid-column:1;width:58px;height:42px;border-radius:3px;background:radial-gradient(ellipse at 50% 40%,#2c2a26,#1a1917);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}.ddi .thumb img{max-width:92%;max-height:88%;object-fit:contain}.ddi .thumb svg{width:88%;height:88%}.ddi .thumb svg[style] .d{fill:var(--td)}.ddi .n{grid-column:2}
+td.pc{display:flex;gap:10px;align-items:center}td.pc .thumb{flex:0 0 auto;width:52px;height:38px;border-radius:3px;background:radial-gradient(ellipse at 50% 40%,#2c2a26,#1a1917);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}td.pc .thumb img{max-width:92%;max-height:88%;object-fit:contain}td.pc .thumb svg{width:88%;height:88%}td.pc .thumb svg[style] .d{fill:var(--td)}
+.ddi .m{grid-column:2;font:400 11px var(--mono);color:var(--faint)}
 .ddi[aria-selected="true"] .m{color:var(--muted)}
-.ddi .p{grid-row:1/3;grid-column:2;font:600 16px var(--display);font-variant-numeric:tabular-nums;color:var(--brass-hi)}
-.ddi .nm1{grid-column:1/3}
+.ddi .p{grid-row:1/3;grid-column:3;font:600 16px var(--display);font-variant-numeric:tabular-nums;color:var(--brass-hi)}
+.ddi .nm1{grid-column:1/4}
 /* Fiche */
 .modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:16px}
 .mback{position:absolute;inset:0;background:rgba(10,9,8,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
@@ -258,7 +261,7 @@ td a{color:var(--brass)}
   .brand h1{font-size:24px}.brand .mono{width:40px;height:40px}.brand{gap:10px}.brand small{display:none}
   .rb{width:38px;height:38px}.rb svg{width:17px;height:17px}.round{gap:8px;right:12px}
   .tabs{padding-left:12px;padding-right:12px}
-  .tab{min-width:72px;padding:7px 6px 6px}.tab svg{width:21px;height:21px}.tab span{font-size:9.5px}
+  .tab{min-width:72px;padding:7px 6px 6px}.tab>svg{width:21px;height:21px}.tab .thumb{width:40px;height:23px}.tab span{font-size:9.5px}
   .top{padding:10px 16px;gap:8px 10px}
   .top .sel{flex:1 1 60%;min-width:0}
   .stats{order:5;flex:1 1 100%;justify-content:space-between;gap:12px;padding:6px 14px 7px}.stats h2{display:none}.stat{min-width:0}
@@ -278,7 +281,7 @@ td a{color:var(--brass)}
   .card:not(.remove) .row{flex-wrap:wrap;row-gap:6px}
   .stats{max-width:100%;flex-wrap:wrap;justify-content:space-between;gap:6px 14px;border-radius:18px}
 }
-@media (max-height:560px) and (min-width:821px){.tab svg{display:none}.tab{min-width:0;padding:8px 12px}}
+@media (max-height:560px) and (min-width:821px){.tab>svg,.tab .thumb{display:none}.tab{min-width:0;padding:8px 12px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -751,7 +754,7 @@ function thumbHtml(i){
   var src=null;
   var pa=artOn(i),ck=colOf(i);if(pa)src=OVER[artSrcKey(pa,i)].s;
   else if(artOf(i)&&i.slot!=="sling"&&ck&&ck!=="noir")src=tintSvg(ART[artOf(i)].s,ck);
-  else if(i.ov==="sup")src=OVER.sup.s;else if(i.ov==="scope")src=OVER.scope.s;else if(i.ov==="stock"){var c3=colOf(i);src=(c3&&OVER["stockA_"+c3]||STK.A).s;}else if(i.m==="ubr")src=THP.ubr;else if(i.ref==="AN/PEQ-15")src=THP.peq;else if(artOf(i)&&i.slot!=="sling")src=ART[artOf(i)].s;
+  else if(i.ov==="sup")src=OVER.sup.s;else if(i.ov&&OVER[i.ov+"_"+(ck||"noir")])src=OVER[i.ov+"_"+(ck||"noir")].s;else if(i.ov==="scope")src=OVER.scope.s;else if(i.ov==="stock"){var c3=colOf(i);src=(c3&&OVER["stockA_"+c3]||STK.A).s;}else if(i.m==="ubr")src=THP.ubr;else if(i.ref==="AN/PEQ-15")src=THP.peq;else if(artOf(i)&&i.slot!=="sling")src=ART[artOf(i)].s;
   else if(i.slot==="base"&&PHOTOS[i.ref])src=(PHOTOS[i.ref+"|"+colOf(i)]||PHOTOS[i.ref])[1].s;
   if(src)return '<span class="thumb photo"><img src="'+src+'" alt=""></span>';
   return '<span class="thumb" title="Dessin indicatif"><svg viewBox="0 0 120 80" aria-hidden="true"'+(ck?' style="--td:'+COL[ck][1]+'"':'')+'>'+TH[thKey(i)]+'</svg></span>';
@@ -822,7 +825,7 @@ function renderTabs(){
   var hasBase=!!state.picks.base,h="";
   tabSlots().forEach(function(s){
     var on=state.tab===s.id,dis=false,filled=!!picked(s.id);
-    h+='<button class="tab" type="button" role="tab" id="tab-'+s.id+'" data-tab="'+s.id+'" aria-selected="'+on+'"'+(dis?' disabled':'')+'>'+(filled?'<em aria-hidden="true"></em>':'')+ico(s.id)+'<span>'+esc(s.id==="base"?"Réplique":s.label)+'</span></button>';
+    h+='<button class="tab" type="button" role="tab" id="tab-'+s.id+'" data-tab="'+s.id+'" aria-selected="'+on+'"'+(dis?' disabled':'')+'>'+(filled?'<em aria-hidden="true"></em>'+thumbHtml(picked(s.id)):ico(s.id))+'<span>'+esc(s.id==="base"?"Réplique":s.label)+'</span></button>';
   });
   var t=$("#tabs");t.innerHTML=h;
   var a=t.querySelector('[aria-selected="true"]');
@@ -903,7 +906,7 @@ function alerts(){
 }
 function sheetHtml(){
   var tot=0,n=0,rows="";
-  SLOTS.forEach(function(s){var i=picked(s.id);if(i){tot+=i.price;n++;rows+='<tr><td>'+esc(s.label)+'</td><td>'+esc(i.brand)+' '+esc(i.name)+'<br><span class="rf">'+esc(i.ref)+(colsOf(i)&&colsOf(i).length>1?' · '+esc(colName(i)):'')+'</span></td><td class="r">'+(i.price?eur(i.price):"à voir")+'</td><td class="r"><a href="'+link(i)+'" target="_blank" rel="noopener">Trouver ↗</a></td></tr>';}});
+  SLOTS.forEach(function(s){var i=picked(s.id);if(i){tot+=i.price;n++;rows+='<tr><td>'+esc(s.label)+'</td><td class="pc">'+thumbHtml(i)+'<div>'+esc(i.brand)+' '+esc(i.name)+'<br><span class="rf">'+esc(i.ref)+(colsOf(i)&&colsOf(i).length>1?' · '+esc(colName(i)):'')+'</span></div></td><td class="r">'+(i.price?eur(i.price):"à voir")+'</td><td class="r"><a href="'+link(i)+'" target="_blank" rel="noopener">Trouver ↗</a></td></tr>';}});
   var h='<div class="mhead"><div><h3 id="mt">Fiche de commande</h3><p class="sub">'+model()+' '+PLAT[state.platform]+' · '+n+(n>1?' pièces':' pièce')+'</p></div><button class="btn" type="button" data-close="1" id="mclose">Fermer</button></div>';
   h+='<div class="total"><span>Total estimé</span><b>'+eur(tot)+'</b></div>';
   h+=n?'<div class="tablewrap"><table><thead><tr><th>Poste</th><th>Pièce et réf.</th><th class="r">Prix</th><th class="r"><span class="sr">Lien</span></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="empty">Aucune pièce pour le moment. Commencez par la réplique de base.</p>';
@@ -918,7 +921,7 @@ function openDD(id){
   var sl=slotOf(id),d=$("#dd"),t=document.getElementById("tab-"+id);if(!sl||!t)return;
   var items=avail(id),cur=state.picks[id],h='<h3>'+esc(id==="base"?"Réplique de base":sl.label)+'</h3>';
   if(id!=="base")h+='<button class="ddi" type="button" role="option" data-clear="'+id+'" aria-selected="'+(!cur)+'"><span class="n nm1">'+(ORIG[id]?"Pièce d'origine":"Retirer")+'</span></button>';
-  items.forEach(function(i){h+='<button class="ddi" type="button" role="option" data-pick="'+i.id+'" aria-selected="'+(cur===i.id)+'"><span class="n">'+esc(i.brand+" "+i.name)+'</span><span class="p">'+pr(i)+'</span><span class="m">'+esc(i.ref)+(i.v?" · à vérifier":"")+'</span></button>';});
+  items.forEach(function(i){h+='<button class="ddi" type="button" role="option" data-pick="'+i.id+'" aria-selected="'+(cur===i.id)+'">'+thumbHtml(i)+'<span class="n">'+esc(i.brand+" "+i.name)+'</span><span class="p">'+pr(i)+'</span><span class="m">'+esc(i.ref)+(i.v?" · à vérifier":"")+'</span></button>';});
   d.innerHTML=h;d.hidden=false;
   var r=t.getBoundingClientRect(),w=d.offsetWidth,left=Math.max(8,Math.min(r.left,innerWidth-w-8));
   d.style.left=left+"px";d.style.bottom=(innerHeight-r.top+6)+"px";d.style.maxHeight=Math.max(160,r.top-70)+"px";
